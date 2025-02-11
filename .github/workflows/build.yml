@@ -63,7 +63,7 @@ jobs:
         run: go build -tags yara_static -a -ldflags '-extldflags "-static"' .
       
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: fastfinder-${{ matrix.arch }}
           path: fastfinder.exe
