@@ -13,7 +13,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        arch: [amd64, 386]
+        arch: [amd64 i386]
 
     steps:
       - name: Checkout Repository
