@@ -40,12 +40,25 @@ jobs:
         shell: powershell
 
       - name: Download and Compile libyara
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          install: >-
+            base-devel
+            autoconf
+            automake
+            libtool
+        
+      - name: Build libyara
         run: |
-          Invoke-WebRequest -Uri "https://github.com/VirusTotal/yara/archive/refs/tags/v4.4.0.zip" -OutFile "yara.zip"
-          Expand-Archive yara.zip -DestinationPath yara
-          cd yara/yara-4.4.0
-          bash -c "./bootstrap.sh && ./configure && make && make install"
-        shell: powershell
+          curl -LO https://github.com/VirusTotal/yara/archive/refs/tags/v4.4.0.zip
+          unzip v4.4.0.zip
+          cd yara-4.4.0
+          ./bootstrap.sh
+          ./configure
+          make
+          make install
+        shell: msys2 {0}
 
       - name: Install Go
         uses: actions/setup-go@v4
