@@ -70,9 +70,6 @@ jobs:
         run: echo "GOPATH=$env:USERPROFILE\go" | Out-File -Append -Encoding utf8 -FilePath $env:GITHUB_ENV
         shell: powershell
 
-      - name: Install FastFinder
-        run: go get github.com/codeyourweb/fastfinder
-
       - name: Build FastFinder
         run: go build -tags yara_static -a -ldflags '-extldflags "-static"' .
       
