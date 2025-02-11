@@ -22,6 +22,7 @@ jobs:
       - name: Install MSYS2 and Dependencies
         uses: msys2/setup-msys2@v2
         with:
+          location: C:\msys64
           msystem: MINGW64
           install: >-
             mingw-w64-x86_64-toolchain
