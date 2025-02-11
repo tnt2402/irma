@@ -1,0 +1,69 @@
+name: Build FastFinder for Windows
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [amd64, 386]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install MSYS2 and Dependencies
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          install: >-
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-pkg-config
+            base-devel
+            openssl-devel
+
+      - name: Set Environment Variables
+        run: |
+          echo "GOARCH=${{ matrix.arch }}" >> $GITHUB_ENV
+          echo "GOOS=windows" >> $GITHUB_ENV
+          echo "CGO_CFLAGS=-IC:/msys64/mingw64/include" >> $GITHUB_ENV
+          echo "CGO_LDFLAGS=-LC:/msys64/mingw64/lib -lyara -lcrypto" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=C:/msys64/mingw64/lib/pkgconfig" >> $GITHUB_ENV
+          echo "C:\msys64\mingw64\bin" | Out-File -Append -Encoding utf8 -FilePath $env:GITHUB_PATH
+        shell: powershell
+
+      - name: Download and Compile libyara
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/VirusTotal/yara/archive/refs/tags/v4.4.0.zip" -OutFile "yara.zip"
+          Expand-Archive yara.zip -DestinationPath yara
+          cd yara/yara-4.4.0
+          bash -c "./bootstrap.sh && ./configure && make && make install"
+        shell: powershell
+
+      - name: Install Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Set GOPATH
+        run: echo "GOPATH=$env:USERPROFILE\go" | Out-File -Append -Encoding utf8 -FilePath $env:GITHUB_ENV
+        shell: powershell
+
+      - name: Install FastFinder
+        run: go get github.com/codeyourweb/fastfinder
+
+      - name: Build FastFinder
+        run: go build -tags yara_static -a -ldflags '-extldflags "-static"' .
+      
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: fastfinder-${{ matrix.arch }}
+          path: fastfinder.exe
