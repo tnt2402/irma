@@ -48,6 +48,7 @@ jobs:
             autoconf
             automake
             libtool
+            unzip
         
       - name: Build libyara
         run: |
