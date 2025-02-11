@@ -13,7 +13,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        arch: [amd64 i386]
+        arch: [amd64]
 
     steps:
       - name: Checkout Repository
@@ -29,6 +29,7 @@ jobs:
             mingw-w64-x86_64-pkg-config
             base-devel
             openssl-devel
+            unzip
 
       - name: Set Environment Variables
         run: |
@@ -50,7 +51,7 @@ jobs:
             autoconf
             automake
             libtool
-            unzip
+
       - name: Get MSYS2 Location
         uses: msys2/setup-msys2@v2
         id: msys2
